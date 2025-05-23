@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sales Dashboard</title>
+    <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+    <header>
+        <h1>Sales Dashboard</h1>
+    </header>
+
+    <section class="summary">
+        <div class="card" id="total-bills">Total Bills: </div>
+        <div class="card" id="total-sale">Total Sale: </div>
+        <div class="card" id="avg-sale">Average Sale: </div>
+        <div class="card" id="max-sale">Max Sale: </div>
+    </section>
+
+    <section class="filters">
+        <label>From: <input type="date" id="fromDate"></label>
+        <label>To: <input type="date" id="toDate"></label>
+        <select id="repFilter"><option value="">All Reps</option></select>
+        <select id="stateFilter"><option value="">All States</option></select>
+        <select id="cityFilter"><option value="">All Cities</option></select>
+        <select id="distributorFilter"><option value="">All Distributors</option></select>
+        <button id="applyFilters">Apply Filters</button>
+    </section>
+
+    <section class="charts">
+        <canvas id="repChart"></canvas>
+        <canvas id="stateChart"></canvas>
+        <canvas id="distributorChart"></canvas>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwaiN2x_68OYELDCAiH6gtuNbP0vLxdOY6QmTsg0zLxHLRGsaFHi_qm2fOfhGajPl6XjDmBJrKoSvx/pub?output=csv";
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
