@@ -1,43 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Sales Dashboard</title>
-    <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rep Performance Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <header>
-        <h1>Sales Dashboard</h1>
-    </header>
+<body class="bg-gray-100 font-sans">
+  <div class="max-w-6xl mx-auto p-4">
+    <h1 class="text-3xl font-bold mb-6 text-center">Rep Performance Dashboard</h1>
+    
+    <!-- Date Filter -->
+    <div class="mb-4">
+      <label for="dateSelect" class="font-semibold">Filter by Date:</label>
+      <select id="dateSelect" class="ml-2 p-2 border rounded"></select>
+    </div>
 
-    <section class="summary">
-        <div class="card" id="total-bills">Total Bills: </div>
-        <div class="card" id="total-sale">Total Sale: </div>
-        <div class="card" id="avg-sale">Average Sale: </div>
-        <div class="card" id="max-sale">Max Sale: </div>
-    </section>
+    <!-- Dashboard Display -->
+    <div id="dashboard" class="grid gap-4"></div>
+  </div>
 
-    <section class="filters">
-        <label>From: <input type="date" id="fromDate"></label>
-        <label>To: <input type="date" id="toDate"></label>
-        <select id="repFilter"><option value="">All Reps</option></select>
-        <select id="stateFilter"><option value="">All States</option></select>
-        <select id="cityFilter"><option value="">All Cities</option></select>
-        <select id="distributorFilter"><option value="">All Distributors</option></select>
-        <button id="applyFilters">Apply Filters</button>
-    </section>
+  <script>
+    const url = 'https://script.google.com/macros/s/AKfycbzxL20os2t5p6_oQKeqopE7hnckF4XpI--y7CAzY5OxrjzfGYkOcKo1hTfdrNcy69Uk/exec';
+    let data = [];
 
-    <section class="charts">
-        <canvas id="repChart"></canvas>
-        <canvas id="stateChart"></canvas>
-        <canvas id="distributorChart"></canvas>
-    </section>
+    async function loadData() {
+      const res = await fetch(url);
+      data = await res.json();
+      populateDateDropdown();
+      renderDashboard(getUniqueDates()[0]); // Default: latest date
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const DATA_URL = "https://script.google.com/macros/s/AKfycbzB488oPQwyo4mAIf13jMFJjbnaWC14AYi4ThQtNmK-lJ3xBPGNF82Yzji1T72rkcg1tA/exec";
-    </script>
-    <script src="script.js"></script>
+    function getUniqueDates() {
+      return [...new Set(data.map(row => row['Date']))].sort((a, b) => new Date(b) - new Date(a));
+    }
+
+    function populateDateDropdown() {
+      const select = document.getElementById("dateSelect");
+      const dates = getUniqueDates();
+      dates.forEach(date => {
+        const opt = document.createElement("option");
+        opt.value = date;
+        opt.textContent = date;
+        select.appendChild(opt);
+      });
+      select.addEventListener("change", () => renderDashboard(select.value));
+    }
+
+    function renderDashboard(selectedDate) {
+      const container = document.getElementById("dashboard");
+      container.innerHTML = "";
+      const filtered = data.filter(row => row['Date'] === selectedDate);
+
+      filtered.forEach(row => {
+        const statusColor = row['Target Status'] === "Achieved"
+          ? "bg-green-100 border-green-500 text-green-800"
+          : "bg-red-100 border-red-500 text-red-800";
+
+        const card = `
+          <div class="bg-white p-4 rounded-xl shadow border-l-4 ${statusColor}">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold">${row['Rep Name']}</h2>
+              <span class="px-3 py-1 text-sm rounded-full ${statusColor}">${row['Target Status']}</span>
+            </div>
+            <div class="mt-2 text-sm grid grid-cols-2 gap-1">
+              <div><strong>Primary:</strong> ${row['Primary Conversion Ratio']} | Marks: ${row['Marks']}</div>
+              <div><strong>Wholesale:</strong> ${row['Wholesale Conversion Ratio']} | Marks: ${row['Marks_1']}</div>
+              <div><strong>Retail:</strong> ${row['Retail Conversion Ratio']} | Marks: ${row['Marks_2']}</div>
+              <div><strong>Total Marks:</strong> ${row['Total Marks']}</div>
+            </div>
+          </div>`;
+        container.innerHTML += card;
+      });
+    }
+
+    loadData();
+  </script>
 </body>
 </html>
